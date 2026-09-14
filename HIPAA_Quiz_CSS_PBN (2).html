@@ -1,0 +1,875 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>HIPAA Requirements Quiz — CSS Post-Bac Nursing</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<style>
+  :root{
+    --ink:#17232B;
+    --primary:#1F4E5F;
+    --primary-deep:#123640;
+    --primary-light:#4C8B9C;
+    --gold:#A9832B;
+    --gold-light:#D9BE7A;
+    --paper:#F7F5EF;
+    --paper-line:#E1DCCB;
+    --card:#FFFFFF;
+    --error:#A13D3D;
+    --error-bg:#FBEEEC;
+    --success:#2F6B4F;
+    --success-bg:#EAF3EE;
+    --serif: Georgia, "Iowan Old Style", "Palatino Linotype", "Book Antiqua", serif;
+    --sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  }
+  *{box-sizing:border-box;}
+  body{margin:0; background:var(--paper); color:var(--ink); font-family:var(--sans); line-height:1.5; padding:40px 20px 80px;}
+  .wrap{max-width:740px; margin:0 auto;}
+
+  .masthead{border-bottom:3px solid var(--primary); padding-bottom:18px; margin-bottom:32px;}
+  .masthead .eyebrow{color:var(--primary); font-size:13px; letter-spacing:0.02em; margin:0 0 6px;}
+  .masthead h1{font-family:var(--serif); font-size:30px; margin:0 0 8px; color:var(--primary-deep); line-height:1.2;}
+  .masthead p{margin:0; color:#48555C; font-size:15px; max-width:62ch;}
+
+  .card{background:var(--card); border:1px solid var(--paper-line); border-radius:6px; padding:28px 30px; margin-bottom:22px;}
+
+  #intro-screen label{display:block; font-size:14px; font-weight:600; margin-bottom:8px; color:var(--primary-deep);}
+  #intro-screen input[type=text]{width:100%; padding:11px 13px; font-size:16px; border:1px solid #C9C3B2; border-radius:4px; font-family:var(--sans); background:#FCFBF8;}
+  #intro-screen input[type=text]:focus{outline:2px solid var(--primary-light); outline-offset:1px;}
+  .intro-rules{margin:20px 0 0; padding:16px 18px; background:#F1F0E9; border-left:3px solid var(--gold); border-radius:2px; font-size:14px;}
+  .intro-rules ul{margin:8px 0 0; padding-left:20px;}
+  .intro-rules li{margin-bottom:4px;}
+  .type-key{display:flex; gap:14px; flex-wrap:wrap; margin-top:14px; font-size:12.5px; color:#5A6870;}
+  .type-key span.dot{display:inline-block; width:8px; height:8px; border-radius:50%; margin-right:5px; background:var(--primary-light);}
+
+  button{font-family:var(--sans); font-size:15px; font-weight:600; cursor:pointer; border-radius:4px; border:none; padding:13px 26px; transition:background .15s ease, transform .1s ease;}
+  button:active{transform:translateY(1px);}
+  .btn-primary{background:var(--primary); color:#fff;}
+  .btn-primary:hover{background:var(--primary-deep);}
+  .btn-primary:disabled{background:#B7BFC3; cursor:not-allowed;}
+  .btn-secondary{background:transparent; color:var(--primary); border:1.5px solid var(--primary);}
+  .btn-secondary:hover{background:#EAF1F2;}
+  .btn-row{display:flex; gap:12px; flex-wrap:wrap; margin-top:8px;}
+
+  #progress-bar-track{position:sticky; top:0; background:var(--paper); padding:14px 0 10px; z-index:5;}
+  #progress-bar-outer{height:8px; background:#E4E0D2; border-radius:4px; overflow:hidden;}
+  #progress-bar-inner{height:100%; background:linear-gradient(90deg, var(--primary-light), var(--primary)); width:0%; transition:width .25s ease;}
+  #progress-label{font-size:13px; color:#5A6870; margin:6px 0 0; display:flex; justify-content:space-between;}
+
+  .q-block{padding:24px 0; border-bottom:1px solid var(--paper-line);}
+  .q-block:last-child{border-bottom:none;}
+  .q-meta{display:flex; justify-content:space-between; align-items:baseline; margin-bottom:6px;}
+  .q-number{font-size:12px; font-weight:700; color:var(--gold); letter-spacing:0.04em;}
+  .q-type-tag{font-size:11px; font-weight:700; letter-spacing:0.04em; color:var(--primary); background:#EAF1F2; padding:3px 8px; border-radius:10px;}
+  .q-prompt{font-size:16px; font-weight:600; margin:0 0 6px; color:var(--ink);}
+  .q-instructions{font-size:13px; color:#5A6870; margin:0 0 14px; font-style:italic;}
+
+  .opt{display:flex; align-items:flex-start; gap:10px; padding:9px 10px; border-radius:4px; cursor:pointer; margin-bottom:4px;}
+  .opt:hover{background:#F1F0E9;}
+  .opt input{margin-top:3px;}
+  .opt span{font-size:15px;}
+  .opt.correct-flag{background:var(--success-bg);}
+  .opt.incorrect-flag{background:var(--error-bg);}
+
+  table.matrix{width:100%; border-collapse:collapse; font-size:14px; margin-top:6px;}
+  table.matrix th{font-size:12.5px; color:#5A6870; font-weight:600; text-align:center; padding:8px 6px; border-bottom:2px solid var(--paper-line);}
+  table.matrix th:first-child{text-align:left;}
+  table.matrix td{padding:10px 6px; border-bottom:1px solid var(--paper-line); text-align:center;}
+  table.matrix td.row-label{text-align:left; font-weight:500;}
+  table.matrix td.cell-correct{background:var(--success-bg);}
+  table.matrix td.cell-incorrect{background:var(--error-bg);}
+  table.matrix input[type=radio]{cursor:pointer;}
+
+  .cloze-text{font-size:15.5px; line-height:1.9;}
+  .cloze-text select{
+    font-family:var(--sans); font-size:14.5px; padding:5px 8px; border:1px solid #C9C3B2; border-radius:4px;
+    background:#FCFBF8; margin:0 2px; color:var(--ink);
+  }
+  .cloze-text select.blank-correct{border-color:var(--success); background:var(--success-bg);}
+  .cloze-text select.blank-incorrect{border-color:var(--error); background:var(--error-bg);}
+
+  .explain{margin-top:12px; font-size:14px; background:#F1F0E9; border-left:3px solid var(--primary-light); padding:10px 14px; border-radius:2px; color:#3B474D;}
+
+  /* Bowtie */
+  .bowtie-scenario{background:#F1F0E9; border-left:3px solid var(--primary-light); padding:14px 16px; border-radius:2px; font-size:14.5px; margin-bottom:16px;}
+  .bowtie-grid{display:grid; grid-template-columns:1fr 1fr 1fr; gap:16px;}
+  .bowtie-col{background:#FCFBF8; border:1px solid var(--paper-line); border-radius:6px; padding:14px;}
+  .bowtie-col h4{font-size:13px; margin:0 0 4px; color:var(--primary-deep);}
+  .bowtie-col .col-instructions{font-size:12px; color:#5A6870; margin:0 0 10px; font-style:italic;}
+  .bowtie-col .opt{padding:7px 8px; font-size:13.5px;}
+  .bowtie-col .opt span{font-size:13.5px;}
+  @media (max-width:700px){.bowtie-grid{grid-template-columns:1fr;}}
+
+  /* Highlight in text */
+  .highlight-passage{font-size:15px; line-height:2.1;}
+  .highlightable{cursor:pointer; padding:2px 5px; border-radius:3px; transition:background .15s ease;}
+  .highlightable:hover{background:#F1F0E9;}
+  .highlightable.selected{background:#FBE29A;}
+  .highlightable.correct-flag{background:var(--success-bg);}
+  .highlightable.incorrect-flag{background:var(--error-bg);}
+  .highlightable.missed-flag{background:var(--error-bg); outline:2px dashed var(--error); outline-offset:-2px;}
+
+  #results-screen h2{font-family:var(--serif); font-size:24px; margin-top:0; color:var(--primary-deep);}
+  .score-line{font-size:17px; margin-bottom:6px;}
+  .score-line strong{font-size:20px;}
+  .fail-banner{background:var(--error-bg); border-left:4px solid var(--error); padding:14px 16px; border-radius:2px; margin:16px 0; font-size:14px;}
+  .pass-banner{background:var(--success-bg); border-left:4px solid var(--success); padding:14px 16px; border-radius:2px; margin:16px 0; font-size:14px;}
+
+  #cert-screen{text-align:center;}
+  #cert-outer-wrap{background:#fff; padding:26px; border-radius:6px; margin-bottom:20px;}
+  #certificate{position:relative; background:#FFFEFB; border:2px solid var(--gold); outline:1px solid var(--gold); outline-offset:-8px; padding:52px 46px 40px; text-align:center; font-family:var(--serif);}
+  #certificate .seal{margin:0 auto 6px;}
+  #certificate .cert-kicker{font-size:12px; letter-spacing:0.18em; color:var(--gold); margin:0 0 4px; font-family:var(--sans); font-weight:700;}
+  #certificate h2{font-size:32px; margin:4px 0 18px; color:var(--primary-deep);}
+  #certificate .cert-line1{font-size:14px; color:#5A6870; margin:0; font-family:var(--sans);}
+  #certificate .cert-name{font-size:29px; margin:14px 0 16px; color:var(--ink); border-bottom:1px solid var(--paper-line); display:inline-block; padding:0 10px 8px; min-width:320px;}
+  #certificate .cert-body{font-size:15.5px; color:#3B474D; max-width:52ch; margin:0 auto 22px; font-family:var(--sans);}
+  #certificate .cert-course{font-style:italic; color:var(--primary-deep);}
+  #certificate .cert-footer{display:flex; justify-content:space-between; align-items:flex-end; margin-top:34px; font-family:var(--sans); font-size:12.5px; color:#5A6870;}
+  #certificate .cert-footer div{text-align:center; min-width:150px;}
+  #certificate .cert-footer .val{font-family:var(--serif); font-size:15px; color:var(--ink); border-top:1px solid #9FA8AC; padding-top:4px; margin-top:22px;}
+
+  .cert-actions{display:flex; gap:12px; justify-content:center; flex-wrap:wrap;}
+  .note-brightspace{font-size:13px; color:#5A6870; margin-top:14px; max-width:52ch; margin-left:auto; margin-right:auto;}
+
+  .hidden{display:none !important;}
+  footer.foot-note{text-align:center; font-size:12px; color:#8B9096; margin-top:30px;}
+
+  @media print{
+    body *{visibility:hidden;}
+    #cert-outer-wrap, #cert-outer-wrap *{visibility:visible;}
+    #cert-outer-wrap{position:absolute; left:0; top:0; width:100%; margin:0; padding:0;}
+    .cert-actions{display:none !important;}
+  }
+  @media (max-width:480px){
+    #certificate{padding:34px 20px 28px;}
+    #certificate .cert-name{min-width:0; font-size:24px;}
+    .cert-footer{flex-direction:column; gap:16px;}
+    table.matrix{font-size:12.5px;}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="masthead">
+    <p class="eyebrow">The College of St. Scholastica &nbsp;·&nbsp; Post-Baccalaureate Nursing Program</p>
+    <h1>HIPAA Requirements Quiz</h1>
+    <p>A knowledge check covering the HIPAA Requirements for CSS Post-Bac Nursing Students training, Parts One and Two — including a few NGN-style item formats. A score of 100% is required to pass.</p>
+  </div>
+
+  <!-- INTRO -->
+  <div id="intro-screen" class="card">
+    <label for="student-name">Student name</label>
+    <input type="text" id="student-name" placeholder="Enter your full name" autocomplete="name">
+    <div class="intro-rules">
+      <strong>Before you begin:</strong>
+      <ul>
+        <li>This quiz has <span id="q-count-label"></span> items and mixes question formats, including select-all-that-apply, matching/matrix, fill-in-the-blank, bowtie, and highlight-in-text items.</li>
+        <li>You must complete every item before submitting.</li>
+        <li>A score of 100% is required to pass. Missed items are marked so you can review and retake.</li>
+        <li>Passing generates a certificate you can print or download to upload to Brightspace.</li>
+      </ul>
+      <div class="type-key">
+        <span><span class="dot"></span>Multiple choice</span>
+        <span><span class="dot"></span>Select all that apply</span>
+        <span><span class="dot"></span>Matrix/matching</span>
+        <span><span class="dot"></span>Fill-in-the-blank</span>
+        <span><span class="dot"></span>Bowtie</span>
+        <span><span class="dot"></span>Highlight in text</span>
+      </div>
+    </div>
+    <div class="btn-row">
+      <button class="btn-primary" id="start-btn">Begin quiz</button>
+    </div>
+  </div>
+
+  <!-- QUIZ -->
+  <div id="quiz-screen" class="hidden">
+    <div id="progress-bar-track">
+      <div id="progress-bar-outer"><div id="progress-bar-inner"></div></div>
+      <p id="progress-label"><span id="progress-answered">0</span> of <span id="progress-total">0</span> completed</p>
+    </div>
+    <div class="card" id="questions-container"></div>
+    <div class="btn-row">
+      <button class="btn-primary" id="submit-btn" disabled>Submit quiz</button>
+    </div>
+  </div>
+
+  <!-- RESULTS -->
+  <div id="results-screen" class="hidden card">
+    <h2 id="results-heading"></h2>
+    <p class="score-line">Score: <strong id="score-text"></strong></p>
+    <div id="results-banner"></div>
+    <div id="missed-list"></div>
+    <div class="btn-row">
+      <button class="btn-primary hidden" id="retake-btn">Retake quiz</button>
+      <button class="btn-primary hidden" id="view-cert-btn">View certificate</button>
+    </div>
+  </div>
+
+  <!-- CERTIFICATE -->
+  <div id="cert-screen" class="hidden">
+    <div id="cert-outer-wrap">
+      <div id="certificate">
+        <div class="seal">
+          <svg width="54" height="54" viewBox="0 0 54 54" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <circle cx="27" cy="27" r="25" stroke="#A9832B" stroke-width="2"/>
+            <circle cx="27" cy="27" r="19" stroke="#A9832B" stroke-width="1"/>
+            <path d="M27 15 L30.5 23 L39 24 L32.5 30 L34.5 39 L27 34 L19.5 39 L21.5 30 L15 24 L23.5 23 Z" fill="#A9832B"/>
+          </svg>
+        </div>
+        <p class="cert-kicker">Certificate of Completion</p>
+        <h2>HIPAA Requirements Training</h2>
+        <p class="cert-line1">The College of St. Scholastica &nbsp;·&nbsp; Post-Baccalaureate Nursing Program</p>
+        <p class="cert-line1" style="margin-top:14px;">This certifies that</p>
+        <div class="cert-name" id="cert-name-display">Student Name</div>
+        <p class="cert-body">has successfully completed the <span class="cert-course">HIPAA Requirements for CSS Post-Bac Nursing Students</span> quiz (Parts One &amp; Two) with a score of <strong>100%</strong>, demonstrating knowledge of HIPAA privacy and security requirements for clinical practice.</p>
+        <div class="cert-footer">
+          <div><div class="val" id="cert-date-display">—</div>Date completed</div>
+          <div><div class="val">100%</div>Score</div>
+        </div>
+      </div>
+    </div>
+    <div class="cert-actions">
+      <button class="btn-primary" id="download-cert-btn">Download certificate (PDF)</button>
+      <button class="btn-secondary" id="print-cert-btn">Print certificate</button>
+    </div>
+    <p class="note-brightspace">Download the PDF and upload it to the assignment dropbox in Brightspace, or print and scan it if your instructor requires a signed copy.</p>
+  </div>
+
+  <footer class="foot-note">Based on: HIPAA Requirements for CSS Post-Bac Nursing Students, Parts One &amp; Two (HHS, 2020; Bartlett, n.d.)</footer>
+</div>
+
+<script>
+/* ---------------- Question bank ----------------
+   type: "mc"     -> opts[], correct: index
+   type: "sata"   -> opts[], correct: [indices]  (exact set required)
+   type: "matrix" -> rowLabels[], colLabels[], correct: [colIndex per row]
+   type: "cloze"  -> template with {0},{1}... placeholders, blanks: [{options[], correct:index}]
+*/
+const QUESTIONS = [
+  {
+    type:"matrix",
+    q:"Match each HIPAA milestone to the year it occurred.",
+    instructions:"Select one year per row.",
+    rowLabels:["HIPAA was introduced","The Privacy Rule was added","The Security Rule was added"],
+    colLabels:["1996","2001","2003"],
+    correct:[0,1,2],
+    explain:"HIPAA was introduced in 1996, the Privacy Rule was added in 2001, and the Security Rule was added in 2003 — the two rules that affect most clinicians."
+  },
+  {
+    type:"mc",
+    q:"What does HIPAA stand for?",
+    opts:["Health Insurance Portability and Accountability Act","Health Information Privacy and Access Act","Health Insurance Protection and Accessibility Act","Healthcare Information Portability and Accountability Act"],
+    correct:0,
+    explain:"HIPAA is the Health Insurance Portability and Accountability Act, federal legislation protecting the confidentiality and security of health information."
+  },
+  {
+    type:"mc",
+    q:"To be considered a 'covered entity' under HIPAA, an agency must meet which two criteria?",
+    opts:["Employ physicians and own a building","Bill or receive payment for services, AND transmit protected information","Have more than 50 employees and accept insurance","Be a hospital or government agency"],
+    correct:1,
+    explain:"A covered entity both bills/receives payment for services and transmits protected information."
+  },
+  {
+    type:"sata",
+    q:"Select all of the following that are among HIPAA's 18 Personal Identifying Indicators (PII).",
+    instructions:"Select all that apply.",
+    opts:["Full face photographs","Vehicle identifiers","Favorite color","Social Security numbers","Blood type alone","Email addresses"],
+    correct:[0,1,3,5],
+    explain:"Full face photos, vehicle identifiers, Social Security numbers, and email addresses are among the 18 identifiers. A favorite color or blood type alone cannot identify a specific individual."
+  },
+  {
+    type:"cloze",
+    q:"Complete the definition of Protected Health Information (PHI).",
+    template:"Protected Health Information (PHI) equals {0} combined with {1}.",
+    blanks:[
+      {options:["Personal (Individual) Identifying Indicators","Diagnosis codes","Billing codes"], correct:0},
+      {options:["Health Information","Insurance information","Employee information"], correct:0}
+    ],
+    explain:"PHI = Personal (Individual) Identifying Indicators + Health Information."
+  },
+  {
+    type:"matrix",
+    q:"Match each rule to what it protects.",
+    instructions:"Select one answer per row.",
+    rowLabels:["Privacy Rule","Security Rule"],
+    colLabels:["Protects medical records/PHI in any format","Protects electronic PHI (ePHI) specifically"],
+    correct:[0,1],
+    explain:"The Privacy Rule protects medical records and PHI generally, while the Security Rule specifically protects electronic PHI."
+  },
+  {
+    type:"mc",
+    q:"Paper documents containing PHI must be secured behind how many locked 'doors'?",
+    opts:["1","2","3","None, as long as the office is locked at night"],
+    correct:1,
+    explain:"Paper documents must be secured behind 2 locked doors — for example, a locked room containing a locked file cabinet."
+  },
+  {
+    type:"mc",
+    q:"Which statement about Zoom or Skype is accurate for clinical use?",
+    opts:["They are fully HIPAA-compliant platforms","They lack the security features needed to relay PHI but may be used with certain precautions","They are banned entirely and can never be used","They are HIPAA compliant as long as the meeting is password protected"],
+    correct:1,
+    explain:"Zoom and Skype do not contain the security features needed to relay PHI, but may be used with precautions such as closing the door for privacy."
+  },
+  {
+    type:"mc",
+    q:"What should a post-bac nursing student do to determine if a clinical site's computers are secure?",
+    opts:["Assume all agency computers are automatically compliant","Ask the preceptor which devices and technology are secure","Use their personal phone instead","Check the computer's brand name"],
+    correct:1,
+    explain:"Students should ask their preceptor which computers, devices, and technology are secure, and should never use personal devices to transmit client information."
+  },
+  {
+    type:"sata",
+    q:"Select all of the following that are recognized exceptions allowing PHI to be shared without the client's consent.",
+    instructions:"Select all that apply.",
+    opts:["Risk of harm to self or others","A reportable communicable disease (e.g., an STD)","A court order","A family member is simply curious","A coworker wants to know for personal reasons","A welfare fraud investigation"],
+    correct:[0,1,2,5],
+    explain:"Recognized exceptions include risk of harm, reportable communicable diseases, court orders, and welfare fraud investigations. Personal curiosity is never a valid reason."
+  },
+  {
+    type:"mc",
+    q:"Is it ever acceptable to look up a client's information 'just out of curiosity'?",
+    opts:["Yes, if no harm is intended","Yes, if it's a family member","No, it is never acceptable","Yes, but only once per client"],
+    correct:2,
+    explain:"It is never acceptable to access a client's record out of curiosity, even for a family member or friend, and even with no intent to cause harm."
+  },
+  {
+    type:"mc",
+    q:"If a nursing student learns a client is hospitalized but was not personally contacted by the client or family, the student should:",
+    opts:["Visit the client to offer support","Contact the family right away","Not visit or contact the client or family","Post well wishes on social media"],
+    correct:2,
+    explain:"Unless personally contacted by the client or family, staff should not visit or reach out — sharing this knowledge for personal reasons is not permitted."
+  },
+  {
+    type:"matrix",
+    q:"For each scenario, decide whether it is a HIPAA violation.",
+    instructions:"Select one answer per row.",
+    rowLabels:[
+      "A nurse discusses a client's diagnosis with a coworker who is helping provide that client's care",
+      "A nurse looks up a friend's chart out of curiosity",
+      "Two roommates in a shared hospital room overhear each other's providers talking with them",
+      "A staff member posts about a 'frustrating patient today' on social media without naming them"
+    ],
+    colLabels:["Violation","Not a violation"],
+    correct:[1,0,1,0],
+    explain:"Sharing with a coworker who needs the information for care is appropriate, and incidental overhearing is not automatically a violation. Curiosity-driven access and social media posts about clients — even unnamed — are both violations."
+  },
+  {
+    type:"bowtie",
+    q:"Review the scenario and complete the bowtie.",
+    instructions:"Complete all three columns based on the scenario below.",
+    scenario:"While charting at the nurses' station, a nursing student notices a coworker has left a client's discharge paperwork open on an unattended workstation in the hallway, where visitors are walking by. The student also recalls that, earlier in the shift, she used her personal phone to snap a photo of a client's wound and texted it to her clinical instructor for advice.",
+    leftLabel:"Actions to Take",
+    leftInstructions:"Select 2.",
+    leftOpts:[
+      "Secure or log off the unattended workstation immediately",
+      "Report the photo-texting incident to the Privacy Officer",
+      "Post about the situation in a private class group chat",
+      "Delete the photo from the phone without telling anyone",
+      "Ignore it, since the client was not named out loud"
+    ],
+    leftCorrect:[0,1],
+    centerLabel:"Type of Violation Identified",
+    centerInstructions:"Select 1.",
+    centerOpts:[
+      "Both a workstation security violation and improper use of a personal device to transmit PHI",
+      "No violation occurred",
+      "A privacy violation only, not a security violation",
+      "A security violation only, not a privacy violation"
+    ],
+    centerCorrect:0,
+    rightLabel:"Follow-Up Actions Needed",
+    rightInstructions:"Select 2.",
+    rightOpts:[
+      "Notify the Privacy Officer of both incidents",
+      "Confirm the photo is deleted from the personal device and was not saved elsewhere",
+      "Wait to see if the client complains before acting",
+      "Assume this is normal practice at busy agencies",
+      "File a report only if the client asks for one"
+    ],
+    rightCorrect:[0,1],
+    explain:"An unattended workstation displaying PHI is a security violation, and texting a client's photo from a personal device is an improper disclosure of PHI. Both should be reported to the Privacy Officer, and staff should confirm the photo was deleted and not saved or shared elsewhere — never quietly delete evidence or wait for a complaint before acting."
+  },
+  {
+    type:"highlight",
+    q:"Highlight the statements below that describe a HIPAA violation.",
+    instructions:"Click each statement that is a violation. Click again to un-highlight.",
+    segments:[
+      {text:"During change-of-shift report, Maria discusses a client's care plan with the incoming nurse in a private conference room.", correct:false},
+      {text:"Maria tells the charge nurse that a client's lab results are back and normal so the team can plan discharge.", correct:false},
+      {text:"In the break room, a coworker asks Maria if she watched the football game last night, and Maria says yes.", correct:false},
+      {text:"Walking to lunch, Maria tells a friend from outside the unit that a patient down the hall was just diagnosed with a serious illness.", correct:true},
+      {text:"Maria snaps a photo of a client's wound on her personal phone to text her clinical instructor for advice.", correct:true},
+      {text:"Before leaving for the day, Maria logs off her workstation.", correct:false}
+    ],
+    explain:"Discussing care with the incoming nurse in a private location, communicating normal results for discharge planning, unrelated small talk, and logging off a workstation are all appropriate or required practices. Telling a friend outside the unit about a patient's diagnosis, and photographing a client on a personal device, are both HIPAA violations."
+  },
+  {
+    type:"sata",
+    q:"Select all of the following that are appropriate ways for CSS nursing students to communicate with clients.",
+    instructions:"Select all that apply.",
+    opts:["Use an agency-provided phone","Use a personal cell phone for convenience","Leave a voicemail with only the agency name, your name, and number","Discuss full health details in a voicemail message","Text using a secure, agency-provided device"],
+    correct:[0,2,4],
+    explain:"Students should use agency-provided phones and devices, and voicemails should include only the agency name, staff name, and number — never health details. Personal devices should not be used."
+  },
+  {
+    type:"mc",
+    q:"When faxing PHI to another facility, staff should:",
+    opts:["Skip verification since fax machines are secure by default","Verify the number, use a cover sheet, and confirm receipt","Send the fax without a cover sheet to save time","Only confirm receipt if the client requests it"],
+    correct:1,
+    explain:"Best practice for faxing PHI includes using a cover sheet, verifying the number goes to the intended agency, and confirming receipt."
+  },
+  {
+    type:"sata",
+    q:"Select all of the following that reflect correct policy on photographing or recording clients.",
+    instructions:"Select all that apply.",
+    opts:["Clients have the right to decline being photographed","Client photos may be stored on personal devices if password protected","Selfies with clients are never acceptable","Staff may refuse treatment until a client stops recording a session","Recording with a personal phone's photo/video app is acceptable if brief"],
+    correct:[0,2,3],
+    explain:"Clients can decline photos, selfies with clients are never acceptable, and staff can refuse treatment until recording stops. Photos may never be stored on personal devices, and personal photo/video apps should never be used to record clients."
+  },
+  {
+    type:"cloze",
+    q:"Complete the statement about de-identifying client records.",
+    template:"The safest way to de-identify a record is to remove all {0} identifiers, though even blacked-out information may still be {1} to others.",
+    blanks:[
+      {options:["18","10","5"], correct:0},
+      {options:["identifiable","encrypted","invisible"], correct:0}
+    ],
+    explain:"The safest option is removing all 18 identifiers, since partial de-identification can still leave information identifiable."
+  },
+  {
+    type:"mc",
+    q:"Who must be notified if a breach of PHI occurs, and whose responsibility is it to do so?",
+    opts:["The client's family only; any staff member may notify them","Health and Human Services (HHS); the Privacy Officer is responsible for notifying them","No one, unless the client asks","Only the local newspaper; the marketing department handles this"],
+    correct:1,
+    explain:"The Privacy Officer is responsible for notifying HHS if a breach of PHI occurs, and details of what was breached must be provided."
+  },
+  {
+    type:"mc",
+    q:"Who is the final arbiter of what happens to a client's protected health information, except in certain well-defined circumstances?",
+    opts:["The client's physician","Hospital administration","The client","The insurance company"],
+    correct:2,
+    explain:"Except in well-defined circumstances (like emergencies or court orders), the client is the final arbiter of their own PHI."
+  }
+];
+
+let answers = {};
+
+const introScreen = document.getElementById('intro-screen');
+const quizScreen = document.getElementById('quiz-screen');
+const resultsScreen = document.getElementById('results-screen');
+const certScreen = document.getElementById('cert-screen');
+const questionsContainer = document.getElementById('questions-container');
+
+document.getElementById('q-count-label').textContent = QUESTIONS.length;
+document.getElementById('progress-total').textContent = QUESTIONS.length;
+
+const TYPE_LABELS = {mc:"Multiple choice", sata:"Select all that apply", matrix:"Matrix / matching", cloze:"Fill in the blank", bowtie:"Bowtie", highlight:"Highlight in text"};
+
+function isAnswered(qi){
+  const item = QUESTIONS[qi];
+  const a = answers[qi];
+  if (item.type === "mc") return typeof a === "number";
+  if (item.type === "sata") return Array.isArray(a);
+  if (item.type === "matrix") return a && Object.keys(a).length === item.rowLabels.length;
+  if (item.type === "cloze") return a && Object.keys(a).length === item.blanks.length;
+  if (item.type === "bowtie") return a && Array.isArray(a.left) && a.left.length === item.leftCorrect.length &&
+                                       typeof a.center === "number" &&
+                                       Array.isArray(a.right) && a.right.length === item.rightCorrect.length;
+  if (item.type === "highlight") return Array.isArray(a);
+  return false;
+}
+
+function buildBowtieColumn(qi, side, label, instructions, opts, maxSelect, inputType){
+  const col = document.createElement('div');
+  col.className = 'bowtie-col';
+  col.innerHTML = '<h4>'+label+'</h4><p class="col-instructions">'+instructions+'</p>';
+  const name = 'q'+qi+'-'+side;
+  opts.forEach((opt, oi) => {
+    const optLabel = document.createElement('label');
+    optLabel.className = 'opt';
+    optLabel.id = 'bowtie-'+qi+'-'+side+'-'+oi;
+    optLabel.innerHTML = '<input type="'+inputType+'" name="'+name+'" value="'+oi+'"> <span>'+opt+'</span>';
+    col.appendChild(optLabel);
+  });
+  const inputs = Array.from(col.querySelectorAll('input'));
+  inputs.forEach(inp => {
+    inp.addEventListener('change', () => {
+      if (!answers[qi]) answers[qi] = {};
+      if (inputType === 'radio'){
+        answers[qi][side] = parseInt(inp.value,10);
+      } else {
+        const checked = inputs.filter(i => i.checked).map(i => parseInt(i.value,10));
+        answers[qi][side] = checked;
+        if (checked.length >= maxSelect){
+          inputs.forEach(i => { if (!i.checked) i.disabled = true; });
+        } else {
+          inputs.forEach(i => { i.disabled = false; });
+        }
+      }
+      updateProgress();
+    });
+  });
+  return col;
+}
+
+function renderQuestions(){
+  questionsContainer.innerHTML = '';
+  QUESTIONS.forEach((item, qi) => {
+    const block = document.createElement('div');
+    block.className = 'q-block';
+    block.id = 'q-block-' + qi;
+
+    const meta = document.createElement('div');
+    meta.className = 'q-meta';
+    meta.innerHTML = '<span class="q-number">ITEM ' + (qi+1) + ' OF ' + QUESTIONS.length + '</span>' +
+                      '<span class="q-type-tag">' + TYPE_LABELS[item.type] + '</span>';
+    block.appendChild(meta);
+
+    const prompt = document.createElement('p');
+    prompt.className = 'q-prompt';
+    prompt.textContent = item.q;
+    block.appendChild(prompt);
+
+    if (item.instructions){
+      const instr = document.createElement('p');
+      instr.className = 'q-instructions';
+      instr.textContent = item.instructions;
+      block.appendChild(instr);
+    }
+
+    if (item.type === 'mc'){
+      item.opts.forEach((opt, oi) => {
+        const label = document.createElement('label');
+        label.className = 'opt';
+        label.id = 'opt-' + qi + '-' + oi;
+        label.innerHTML = '<input type="radio" name="q'+qi+'" value="'+oi+'"> <span>'+opt+'</span>';
+        label.querySelector('input').addEventListener('change', () => {
+          answers[qi] = oi;
+          updateProgress();
+        });
+        block.appendChild(label);
+      });
+    }
+
+    else if (item.type === 'sata'){
+      item.opts.forEach((opt, oi) => {
+        const label = document.createElement('label');
+        label.className = 'opt';
+        label.id = 'opt-' + qi + '-' + oi;
+        label.innerHTML = '<input type="checkbox" name="q'+qi+'" value="'+oi+'"> <span>'+opt+'</span>';
+        label.querySelector('input').addEventListener('change', () => {
+          const checked = Array.from(block.querySelectorAll('input[name="q'+qi+'"]:checked')).map(el => parseInt(el.value,10));
+          answers[qi] = checked;
+          updateProgress();
+        });
+        block.appendChild(label);
+      });
+    }
+
+    else if (item.type === 'matrix'){
+      const table = document.createElement('table');
+      table.className = 'matrix';
+      let thead = '<tr><th></th>';
+      item.colLabels.forEach(c => thead += '<th>'+c+'</th>');
+      thead += '</tr>';
+      table.innerHTML = thead;
+      item.rowLabels.forEach((rowLabel, ri) => {
+        const tr = document.createElement('tr');
+        tr.id = 'row-' + qi + '-' + ri;
+        let rowHtml = '<td class="row-label">'+rowLabel+'</td>';
+        item.colLabels.forEach((c, ci) => {
+          rowHtml += '<td id="cell-'+qi+'-'+ri+'-'+ci+'"><input type="radio" name="q'+qi+'-r'+ri+'" value="'+ci+'"></td>';
+        });
+        tr.innerHTML = rowHtml;
+        table.appendChild(tr);
+      });
+      table.querySelectorAll('input').forEach(inp => {
+        inp.addEventListener('change', (e) => {
+          const ri = parseInt(e.target.name.split('-r')[1],10);
+          const ci = parseInt(e.target.value,10);
+          if (!answers[qi]) answers[qi] = {};
+          answers[qi][ri] = ci;
+          updateProgress();
+        });
+      });
+      block.appendChild(table);
+    }
+
+    else if (item.type === 'cloze'){
+      const div = document.createElement('div');
+      div.className = 'cloze-text';
+      const parts = item.template.split(/\{(\d+)\}/);
+      let html = '';
+      parts.forEach((part, idx) => {
+        if (idx % 2 === 0){
+          html += part;
+        } else {
+          const bi = parseInt(part,10);
+          const blank = item.blanks[bi];
+          html += '<select id="blank-'+qi+'-'+bi+'" data-qi="'+qi+'" data-bi="'+bi+'"><option value="" disabled selected>choose…</option>';
+          blank.options.forEach((opt, oi) => {
+            html += '<option value="'+oi+'">'+opt+'</option>';
+          });
+          html += '</select>';
+        }
+      });
+      div.innerHTML = html;
+      div.querySelectorAll('select').forEach(sel => {
+        sel.addEventListener('change', (e) => {
+          const bi = parseInt(e.target.dataset.bi,10);
+          if (!answers[qi]) answers[qi] = {};
+          answers[qi][bi] = parseInt(e.target.value,10);
+          updateProgress();
+        });
+      });
+      block.appendChild(div);
+    }
+
+    else if (item.type === 'bowtie'){
+      const scenario = document.createElement('p');
+      scenario.className = 'bowtie-scenario';
+      scenario.textContent = item.scenario;
+      block.appendChild(scenario);
+
+      const grid = document.createElement('div');
+      grid.className = 'bowtie-grid';
+      grid.appendChild(buildBowtieColumn(qi, 'left', item.leftLabel, item.leftInstructions, item.leftOpts, item.leftCorrect.length, 'checkbox'));
+      grid.appendChild(buildBowtieColumn(qi, 'center', item.centerLabel, item.centerInstructions, item.centerOpts, 1, 'radio'));
+      grid.appendChild(buildBowtieColumn(qi, 'right', item.rightLabel, item.rightInstructions, item.rightOpts, item.rightCorrect.length, 'checkbox'));
+      block.appendChild(grid);
+    }
+
+    else if (item.type === 'highlight'){
+      const passage = document.createElement('p');
+      passage.className = 'highlight-passage';
+      item.segments.forEach((seg, si) => {
+        const span = document.createElement('span');
+        span.className = 'highlightable';
+        span.id = 'seg-' + qi + '-' + si;
+        span.textContent = seg.text;
+        span.addEventListener('click', () => {
+          if (!Array.isArray(answers[qi])) answers[qi] = [];
+          const idx = answers[qi].indexOf(si);
+          if (idx === -1){ answers[qi].push(si); span.classList.add('selected'); }
+          else { answers[qi].splice(idx,1); span.classList.remove('selected'); }
+          updateProgress();
+        });
+        passage.appendChild(span);
+        passage.appendChild(document.createTextNode(' '));
+      });
+      block.appendChild(passage);
+    }
+
+    const explain = document.createElement('div');
+    explain.className = 'explain hidden';
+    explain.id = 'explain-' + qi;
+    explain.textContent = item.explain;
+    block.appendChild(explain);
+
+    questionsContainer.appendChild(block);
+  });
+}
+
+function updateProgress(){
+  let answeredCount = 0;
+  QUESTIONS.forEach((item, qi) => { if (isAnswered(qi)) answeredCount++; });
+  const pct = Math.round((answeredCount / QUESTIONS.length) * 100);
+  document.getElementById('progress-bar-inner').style.width = pct + '%';
+  document.getElementById('progress-answered').textContent = answeredCount;
+  document.getElementById('submit-btn').disabled = answeredCount < QUESTIONS.length;
+}
+
+document.getElementById('start-btn').addEventListener('click', () => {
+  introScreen.classList.add('hidden');
+  quizScreen.classList.remove('hidden');
+  renderQuestions();
+  window.scrollTo({top:0, behavior:'smooth'});
+});
+
+document.getElementById('submit-btn').addEventListener('click', () => {
+  let allAnswered = true;
+  QUESTIONS.forEach((item, qi) => { if (!isAnswered(qi)) allAnswered = false; });
+  if (!allAnswered) return;
+  gradeAndShow();
+});
+
+function arraysEqualAsSets(a, b){
+  if (a.length !== b.length) return false;
+  const sa = [...a].sort((x,y)=>x-y), sb = [...b].sort((x,y)=>x-y);
+  return sa.every((v,i) => v === sb[i]);
+}
+
+function gradeAndShow(){
+  let correctCount = 0;
+  const missed = [];
+
+  QUESTIONS.forEach((item, qi) => {
+    let isCorrect = false;
+    const a = answers[qi];
+
+    if (item.type === 'mc'){
+      isCorrect = a === item.correct;
+      item.opts.forEach((opt, oi) => {
+        const optEl = document.getElementById('opt-'+qi+'-'+oi);
+        optEl.querySelectorAll('input').forEach(i => i.disabled = true);
+        if (oi === item.correct) optEl.classList.add('correct-flag');
+        else if (oi === a && !isCorrect) optEl.classList.add('incorrect-flag');
+      });
+    }
+
+    else if (item.type === 'sata'){
+      isCorrect = arraysEqualAsSets(a, item.correct);
+      item.opts.forEach((opt, oi) => {
+        const optEl = document.getElementById('opt-'+qi+'-'+oi);
+        optEl.querySelectorAll('input').forEach(i => i.disabled = true);
+        const shouldBeChecked = item.correct.includes(oi);
+        const wasChecked = a.includes(oi);
+        if (shouldBeChecked) optEl.classList.add('correct-flag');
+        else if (wasChecked && !shouldBeChecked) optEl.classList.add('incorrect-flag');
+      });
+    }
+
+    else if (item.type === 'matrix'){
+      isCorrect = item.rowLabels.every((_, ri) => a[ri] === item.correct[ri]);
+      item.rowLabels.forEach((_, ri) => {
+        item.colLabels.forEach((_, ci) => {
+          document.getElementById('row-'+qi+'-'+ri).querySelectorAll('input').forEach(inp => inp.disabled = true);
+          const cell = document.getElementById('cell-'+qi+'-'+ri+'-'+ci);
+          if (ci === item.correct[ri]) cell.classList.add('cell-correct');
+          else if (ci === a[ri]) cell.classList.add('cell-incorrect');
+        });
+      });
+    }
+
+    else if (item.type === 'cloze'){
+      isCorrect = item.blanks.every((b, bi) => a[bi] === b.correct);
+      item.blanks.forEach((b, bi) => {
+        const sel = document.getElementById('blank-'+qi+'-'+bi);
+        sel.disabled = true;
+        sel.classList.add(a[bi] === b.correct ? 'blank-correct' : 'blank-incorrect');
+      });
+    }
+
+    else if (item.type === 'bowtie'){
+      isCorrect = arraysEqualAsSets(a.left, item.leftCorrect) && a.center === item.centerCorrect && arraysEqualAsSets(a.right, item.rightCorrect);
+      item.leftOpts.forEach((opt, oi) => {
+        const el = document.getElementById('bowtie-'+qi+'-left-'+oi);
+        el.querySelectorAll('input').forEach(i => i.disabled = true);
+        if (item.leftCorrect.includes(oi)) el.classList.add('correct-flag');
+        else if (a.left.includes(oi)) el.classList.add('incorrect-flag');
+      });
+      item.centerOpts.forEach((opt, oi) => {
+        const el = document.getElementById('bowtie-'+qi+'-center-'+oi);
+        el.querySelectorAll('input').forEach(i => i.disabled = true);
+        if (oi === item.centerCorrect) el.classList.add('correct-flag');
+        else if (oi === a.center) el.classList.add('incorrect-flag');
+      });
+      item.rightOpts.forEach((opt, oi) => {
+        const el = document.getElementById('bowtie-'+qi+'-right-'+oi);
+        el.querySelectorAll('input').forEach(i => i.disabled = true);
+        if (item.rightCorrect.includes(oi)) el.classList.add('correct-flag');
+        else if (a.right.includes(oi)) el.classList.add('incorrect-flag');
+      });
+    }
+
+    else if (item.type === 'highlight'){
+      const correctIdx = item.segments.map((s, si) => s.correct ? si : null).filter(v => v !== null);
+      isCorrect = arraysEqualAsSets(a, correctIdx);
+      item.segments.forEach((seg, si) => {
+        const span = document.getElementById('seg-'+qi+'-'+si);
+        span.style.pointerEvents = 'none';
+        const selected = a.includes(si);
+        if (seg.correct && selected) span.classList.add('correct-flag');
+        else if (seg.correct && !selected) span.classList.add('missed-flag');
+        else if (!seg.correct && selected) span.classList.add('incorrect-flag');
+      });
+    }
+
+    if (isCorrect) correctCount++;
+    else missed.push(qi);
+
+    document.getElementById('explain-'+qi).classList.remove('hidden');
+  });
+
+  const total = QUESTIONS.length;
+  const pct = Math.round((correctCount/total)*100);
+
+  quizScreen.classList.add('hidden');
+  resultsScreen.classList.remove('hidden');
+  document.getElementById('score-text').textContent = correctCount + ' / ' + total + ' (' + pct + '%)';
+
+  const banner = document.getElementById('results-banner');
+  const missedList = document.getElementById('missed-list');
+  const retakeBtn = document.getElementById('retake-btn');
+  const certBtn = document.getElementById('view-cert-btn');
+
+  if (pct === 100){
+    document.getElementById('results-heading').textContent = 'Quiz passed';
+    banner.innerHTML = '<div class="pass-banner">You answered every item correctly. Your certificate is ready below.</div>';
+    missedList.innerHTML = '';
+    retakeBtn.classList.add('hidden');
+    certBtn.classList.remove('hidden');
+  } else {
+    document.getElementById('results-heading').textContent = 'Not yet at 100%';
+    banner.innerHTML = '<div class="fail-banner">A score of 100% is required to pass. Review the missed items below (marked in the quiz above), then retake the quiz.</div>';
+    let html = '<p style="font-size:14px;font-weight:600;margin-bottom:6px;">Items missed:</p><ul style="font-size:14px;">';
+    missed.forEach(qi => { html += '<li>Item ' + (qi+1) + ': ' + QUESTIONS[qi].q + '</li>'; });
+    html += '</ul>';
+    missedList.innerHTML = html;
+    retakeBtn.classList.remove('hidden');
+    certBtn.classList.add('hidden');
+  }
+  window.scrollTo({top:0, behavior:'smooth'});
+}
+
+document.getElementById('retake-btn').addEventListener('click', () => {
+  answers = {};
+  resultsScreen.classList.add('hidden');
+  quizScreen.classList.remove('hidden');
+  renderQuestions();
+  updateProgress();
+  window.scrollTo({top:0, behavior:'smooth'});
+});
+
+document.getElementById('view-cert-btn').addEventListener('click', () => {
+  const name = document.getElementById('student-name').value.trim() || 'Student Name';
+  document.getElementById('cert-name-display').textContent = name;
+  const today = new Date();
+  document.getElementById('cert-date-display').textContent = today.toLocaleDateString('en-US', {year:'numeric', month:'long', day:'numeric'});
+  resultsScreen.classList.add('hidden');
+  certScreen.classList.remove('hidden');
+  window.scrollTo({top:0, behavior:'smooth'});
+});
+
+document.getElementById('print-cert-btn').addEventListener('click', () => window.print());
+
+document.getElementById('download-cert-btn').addEventListener('click', () => {
+  const certEl = document.getElementById('certificate');
+  const btn = document.getElementById('download-cert-btn');
+  const originalText = btn.textContent;
+  btn.textContent = 'Preparing PDF…';
+  btn.disabled = true;
+
+  html2canvas(certEl, {scale:2, backgroundColor:'#FFFEFB'}).then(canvas => {
+    const imgData = canvas.toDataURL('image/png');
+    const { jsPDF } = window.jspdf;
+    const pdf = new jsPDF({orientation:'landscape', unit:'pt', format:[canvas.width/2, canvas.height/2]});
+    pdf.addImage(imgData, 'PNG', 0, 0, canvas.width/2, canvas.height/2);
+    const name = document.getElementById('student-name').value.trim().replace(/[^a-z0-9]+/gi, '_') || 'Student';
+    pdf.save('HIPAA_Certificate_' + name + '.pdf');
+    btn.textContent = originalText;
+    btn.disabled = false;
+  }).catch(err => {
+    console.error(err);
+    btn.textContent = 'Download failed — try Print instead';
+    btn.disabled = false;
+  });
+});
+</script>
+</body>
+</html>
